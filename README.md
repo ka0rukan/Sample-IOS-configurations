@@ -9,3 +9,8 @@ ip pim nbma-mode (only on hub?)
 
 more multicast
 more ipv6
+OSPF network types
+	point-to-point
+	point-to-multipoint
+	broadcast
+	non-broadcast
