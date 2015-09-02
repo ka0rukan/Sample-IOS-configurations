@@ -1,0 +1,70 @@
+IPV6 BGP (R1 & R2 EIGRP, R3 OSPF)
+
+!redistribute loops and make them passive
+!EIGRP authentication
+
+!R1
+!
+ipv6 unicast-routing
+!
+key chain SITE1
+ key 1
+  key-string cisco
+!
+router bgp 65001
+ neighbor 1030:13::3 remote-as 13
+ address-fam ipv6 unicast
+  redistribute eigrp 1 include-connected
+  neighbor 1030:13::3 activate
+!
+!EIGRP named
+router eigrp SITE1
+ address-fam ipv6 unicast autonomous 1
+  eigrp router-id 1.1.1.1
+  topology base
+   redistribute bgp 65001 metric 1000 100 255 1 1500
+  af-interface e0/1
+   authentication mode md5
+   authentication key SITE1
+  af-interface lo0
+   passive-interface
+!
+int lo0
+ ipv6 address 1111:1111::1111/64
+!
+int e0/1
+ ipv6 enable
+!EIGRP can peer on link local without global
+!
+int e0/2
+ ipv6 address 1030:1::1/64
+!
+end
+wr
+
+!R2
+!
+ipv6 unicast-routing
+!
+key chain SITE1
+ key 1
+  key-string cisco
+!
+int lo0
+ ipv6 address 2222:2222::2/64
+ ipv6 eigrp 1
+!THERE IS NOT A PASSIVE INTERFACE COMMAND IN CLASSIC
+!
+int e0/1
+ ipv6 enable
+!EIGRP can peer on link local without global
+ ipv6 eigrp 1
+ ipv6 authentication mode eigrp 1 md5
+ ipv6 authentication key eigrp 1 SITE1
+!
+!EIGRP classic
+ipv6 router eigrp 1
+ eigrp router-id 2.2.2.2
+ no shut
+!
+

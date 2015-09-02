@@ -1,0 +1,31 @@
+!EIGRP classic
+
+router eigrp 133
+ network 10.0.0.0 0.255.255.255
+ 
+!EIGRP classic with vrf “VPN”
+
+ip vrf VPN
+ rd 1:1
+ route-target import 1:1
+ route-target export 1:1
+
+int e0/1
+ ip vrf forward VPN
+ ip address 10.1.1.1 255.255.255.0
+
+router eigrp 133
+ address-fam ipv4 vrf VPN autonomous 133
+  network 10.0.0.0 0.255.255.255
+
+!EIGRP named with vrf
+
+router eigrp NAMED 
+ address-fam ipv4 unicast autonomous 133
+  network 10.0.0.0 0.255.255.255  
+  topology base
+   redistribute eigrp 1333
+ address-fam ipv4 vrf VPN autonomous 13333
+  network 10.0.0.0 0.255.255.255
+  topology base
+   redistribute eigrp 100

@@ -1,0 +1,47 @@
+DMVPN sample 1
+
+!ipsec configuration
+config t
+crypto isakmp key cisco address 0.0.0.0
+crypto isakmp pol 1
+ encr aes
+ authentication pre-share
+ group 2
+crypto ipsec transform T-SET esp-aes esp-sha-hmac
+ mode tun
+crypto ipsec profile DMVPN
+ set transform T-SET
+
+!hub config phase 3
+int tu1
+ ip address 192.168.16.1 255.255.255.0
+ ip mtu 1400
+ ip nhrp authentication cisco
+ ip nhrp map multicast dynamic
+ ip nhrp network-id 1
+ tunnel source e0/1
+ tunnel key 1
+ tunnel mode gre multipoint
+ tunnel protection ipsec profile DMVPN
+ ip tcp adjust-mss 1360
+ ip nhrp holdtime 300
+ delay 1000
+
+!spoke config phase 3
+int tu1
+ ip address 192.168.16.2 255.255.255.0
+ ip mtu 1400
+ ip nhrp authentication cisco
+ ip nhrp nhs 192.168.16.1
+ ip nhrp map 192.168.16.1 123.1.1.1
+ ip nhrp map multicast 123.1.1.1
+ ip nhrp network-id 2
+ tunnel source e0/1
+ tunnel key 1
+ tunnel mode gre multipoint
+ tunnel protection ipsec profile DMVPN
+ ip tcp adjust-mss 1360
+ ip nhrp holdtime 300
+ delay 1000
+
+ 
